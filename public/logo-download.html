@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin: 0; background: transparent; }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="2048" height="2048"></canvas>
+<script>
+async function render() {
+  const svgResp = await fetch('/logo.svg');
+  const svgText = await svgResp.text();
+  const blob = new Blob([svgText], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 2048, 2048);
+    ctx.drawImage(img, 0, 0, 2048, 2048);
+    URL.revokeObjectURL(url);
+    
+    // 自动下载
+    const link = document.createElement('a');
+    link.download = 'lemon-logo-2048x2048.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    
+    // 显示预览
+    const preview = document.createElement('img');
+    preview.src = canvas.toDataURL('image/png');
+    preview.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:80vw;max-height:80vh;background:repeating-conic-gradient(#eee 0% 25%, white 0% 50%) 50%/20px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.1);';
+    document.body.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f0f0f0;margin:0;';
+    canvas.style.display = 'none';
+    document.body.appendChild(preview);
+    
+    // 下载按钮
+    const btn = document.createElement('button');
+    btn.textContent = '📥 下载高清 PNG (2048×2048)';
+    btn.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);padding:14px 32px;font-size:16px;font-weight:600;background:linear-gradient(135deg,#FDE047,#EAB308);color:#1a1a1a;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 16px rgba(234,179,8,0.4);transition:all 0.2s;';
+    btn.onmouseenter = () => btn.style.transform = 'translateX(-50%) scale(1.05)';
+    btn.onmouseleave = () => btn.style.transform = 'translateX(-50%) scale(1)';
+    btn.onclick = () => link.click();
+    document.body.appendChild(btn);
+  };
+  img.src = url;
+}
+render();
+</script>
+</body>
+</html>
